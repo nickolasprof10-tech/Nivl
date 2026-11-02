@@ -1,0 +1,9 @@
+Service Control - app offline (feito por Nickolas)
+
+1) Envie TODOS os arquivos desta pasta, EXCETO build-apk.yml, para o repositorio
+   (Add file > Upload files) e toque em Commit changes.
+2) Depois: Add file > Create new file. No nome digite exatamente:
+   .github/workflows/build-apk.yml
+   Cole dentro o conteudo do arquivo build-apk.yml e toque em Commit changes.
+3) Aba Actions: a compilacao inicia sozinha (5-10 min). Ao terminar, abra a execucao
+   e baixe "ServiceControl-APK" em Artifacts. Instale o .apk no celular.

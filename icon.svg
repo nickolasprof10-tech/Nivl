@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<defs>
+<linearGradient id="m" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa3b5"/><stop offset=".45" stop-color="#eef1f7"/><stop offset="1" stop-color="#aab2c3"/></linearGradient>
+<radialGradient id="p" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dde2ef"/></radialGradient>
+</defs>
+<rect width="512" height="512" fill="#1b2a49"/>
+<!-- fork -->
+<g fill="url(#m)">
+<rect x="96" y="146" width="10" height="64" rx="5"/><rect x="113" y="146" width="10" height="64" rx="5"/><rect x="130" y="146" width="10" height="64" rx="5"/>
+<path d="M96 200H140Q140 238 126 244H110Q96 238 96 200Z"/>
+<rect x="111" y="238" width="14" height="136" rx="7"/>
+</g>
+<!-- plate -->
+<circle cx="256" cy="260" r="112" fill="url(#p)"/>
+<circle cx="256" cy="260" r="78" fill="#f7f8fc" stroke="#c9cfe0" stroke-width="8"/>
+<!-- knife (cutting edge faces the plate) -->
+<g transform="translate(796 0) scale(-1 1)">
+<path d="M384 146C412 156 416 214 412 268V366Q412 374 404 374H392Q384 374 384 366Z" fill="url(#m)"/>
+<path d="M384 268H412" stroke="#8d96aa" stroke-width="3"/>
+</g>
+</svg>

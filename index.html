@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#1b2a49">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="author" content="Nickolas">
+<title>Service Control</title>
+<style>
+:root{--navy:#1b2a49;--navy2:#142038;--bg:#eef0f6;--card:#fff;--line:#d7dbe6;--txt:#1a2236;--mut:#6b7385;
+--s0:#eef0f6;--s0b:#c9cedd;--s1:#fbf3d8;--s1b:#e8c85a;--s2:#fbe4d3;--s2b:#e9a15f;--s3:#e1f3e4;--s3b:#5fb36e;
+--sl:max(.75rem,env(safe-area-inset-left));--sr:max(.75rem,env(safe-area-inset-right))}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:15px}
+html.z0{font-size:13px}html.z2{font-size:17px}html.z3{font-size:19px}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,-apple-system,Roboto,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+header{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top) + .4rem) var(--sr) .4rem var(--sl);position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:.6rem;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+h1{font-size:1.05rem;margin:0;letter-spacing:.6px;white-space:nowrap}
+.stats{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.stats span{background:rgba(255,255,255,.13);border-radius:1rem;padding:.3rem .65rem;white-space:nowrap;font-size:.9rem;font-weight:600}
+.hbtn{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:.7rem;height:2.4rem;padding:0 .8rem;font-weight:700;font-size:.95rem;white-space:nowrap}
+.hbtn.pri{background:#4cc26b;color:#0e2a17}
+.hbtn.sq{width:2.4rem;padding:0;font-size:1.3rem}
+main{padding:.6rem var(--sr) 4rem var(--sl)}
+.table{background:var(--card);border-radius:1rem;border:1px solid var(--line);margin-bottom:.7rem;overflow:hidden}
+.thead{display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem}
+.thead .name{font-weight:800;font-size:1.15rem;flex:1;display:flex;gap:.45rem;align-items:center;cursor:pointer;min-width:0}
+.thead .name b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.thead small{color:var(--mut);font-weight:700;font-size:.85rem;background:#eef0f6;border-radius:.6rem;padding:.15rem .5rem}
+.thead small.ok{background:var(--s3);color:#27693a}
+.cnt{display:flex;align-items:center;background:#e4e9f5;border-radius:.6rem;overflow:hidden}
+.cnt button{background:none;border:0;font-size:1.3rem;font-weight:700;width:2.4rem;height:2.4rem}
+.cnt div{background:#fff;padding:0 .6rem;height:2.4rem;display:flex;align-items:center;font-weight:700;font-size:1rem}
+.sq{background:#e4e9f5;border:0;border-radius:.6rem;width:2.4rem;height:2.4rem;font-size:1.05rem}
+.sq.del{background:#fbe6e8}
+.grid{display:grid;grid-template-columns:5rem repeat(4,1fr) 2rem;gap:.4rem .35rem;padding:0 .5rem .4rem;border-top:1px solid var(--line);align-items:center}
+.th{font-size:.7rem;font-weight:800;color:var(--mut);letter-spacing:.6px;padding:.45rem 0 0}
+.th:not(:first-child){text-align:center}
+.gname{font-weight:700;font-size:.9rem;line-height:1.1}
+.cell{position:relative;height:3.1rem;border-radius:.7rem;border:2px solid var(--s0b);background:var(--s0);color:var(--mut);font-size:.9rem;font-weight:700;padding:0 .9rem 0 1rem;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.05;word-break:break-word}
+.cell span.t{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cell.s1{background:var(--s1);border-color:var(--s1b);color:#7a5c0c}
+.cell.s2{background:var(--s2);border-color:var(--s2b);color:#9a4e13}
+.cell.s3{background:var(--s3);border-color:var(--s3b);color:#27693a}
+.cell .ic{position:absolute;top:1px;left:3px;font-size:.7rem;line-height:1}
+.cell .bang{position:absolute;top:0;right:4px;font-size:1.15rem;font-weight:900;color:#e5192f;line-height:1}
+.xg{background:none;border:0;color:#9aa1b4;font-size:1.2rem}
+.addg{margin:.1rem .5rem .55rem;width:calc(100% - 1rem);border:2px dashed var(--s0b);background:none;border-radius:.7rem;height:2.3rem;font-size:.95rem;font-weight:700;color:var(--mut)}
+.empty{text-align:center;color:var(--mut);margin-top:2.5rem;font-size:1.1rem;line-height:1.6}
+/* sheet */
+.back{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;z-index:10}
+.back.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;background:#fff;border-radius:1.2rem 1.2rem 0 0;padding:.9rem var(--sr) calc(env(safe-area-inset-bottom) + .7rem) var(--sl);z-index:11;transform:translateY(105%);transition:transform .18s;max-height:100dvh;overflow:auto;display:grid;grid-template-columns:1fr;gap:.6rem}
+.sheet.on{transform:none}
+.sh-top{display:flex;justify-content:space-between;align-items:flex-start}
+.sh-top small{color:var(--mut);font-size:.9rem}
+.sh-top h2{margin:0;font-size:1.5rem;line-height:1.1}
+.sh-x{background:#eef0f6;border:0;border-radius:.7rem;width:2.7rem;height:2.7rem;font-size:1.3rem}
+.sheet input,.sheet textarea{width:100%;border:2px solid var(--line);border-radius:.8rem;padding:.6rem .75rem;font:inherit;font-size:1.15rem;color:var(--txt);background:#fff}
+.sheet textarea{font-size:1rem;height:3.6rem;resize:none;border-color:#f1b8be}
+.sheet label{display:block;font-size:.7rem;font-weight:800;color:var(--mut);letter-spacing:.5px;margin:.1rem 0 -.3rem}
+.chips{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;padding:.05rem 0}
+.chip{flex:none;border:1.5px solid var(--line);background:#f6f7fb;border-radius:1rem;padding:.35rem .8rem;font-size:.95rem;font-weight:600;white-space:nowrap}
+.chip.mv-open{background:var(--navy);color:#fff;border-color:var(--navy)}
+.shR{display:flex;flex-direction:column;gap:.6rem;justify-content:flex-end}
+.sts{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.st{border-radius:.9rem;border:2px solid;height:3.3rem;font-size:1.05rem;font-weight:800}
+.st[data-s="0"]{background:var(--s0);border-color:var(--s0b);color:var(--mut)}
+.st[data-s="1"]{background:var(--s1);border-color:var(--s1b);color:#7a5c0c}
+.st[data-s="2"]{background:var(--s2);border-color:var(--s2b);color:#9a4e13}
+.st[data-s="3"]{background:var(--s3);border-color:var(--s3b);color:#27693a}
+.st.sel{outline:4px solid var(--navy);outline-offset:1px}
+.nav{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:.5rem}
+.nav button{height:3.1rem;border-radius:.8rem;border:0;background:#eef0f6;font-size:1.05rem;font-weight:800}
+.nav .done{background:var(--navy);color:#fff}
+@media (orientation:landscape){
+  .sheet{grid-template-columns:1.15fr 1fr;column-gap:1rem;align-items:stretch}
+  .shL{display:flex;flex-direction:column;gap:.5rem;min-width:0}
+}
+@media (orientation:portrait){.shL{display:flex;flex-direction:column;gap:.5rem}}
+/* dropdown menu */
+.menu{position:fixed;right:.6rem;top:calc(env(safe-area-inset-top) + 3.2rem);background:#fff;color:var(--txt);border-radius:.8rem;box-shadow:0 8px 24px rgba(0,0,0,.35);z-index:12;display:none;overflow:hidden;max-height:calc(100dvh - 4rem);overflow-y:auto}
+.menu.on{display:block}
+.menu .credit{padding:.7rem 1.2rem;font-size:.8rem;color:var(--mut);text-align:center;background:#f6f7fb}
+.credit-foot{text-align:center;color:var(--mut);font-size:.75rem;opacity:.75;padding:0 var(--sr) 1.2rem var(--sl);margin-top:-3rem}
+.menu button{display:block;width:100%;text-align:left;border:0;background:none;padding:.8rem 1.2rem;font-size:1rem;border-bottom:1px solid #eee;white-space:nowrap}
+/* smart menu viewer */
+.mv{position:fixed;inset:0;background:var(--navy2);z-index:20;display:none;grid-template-columns:1fr;grid-template-rows:1fr auto;color:#fff}
+.mv.on{display:grid}
+.mvimg{position:relative;overflow:auto;background:#0b1220;min-height:0;display:flex;justify-content:center;align-items:flex-start;touch-action:pan-x pan-y pinch-zoom}
+.mvimg img{display:block;max-width:none}
+.mvimg.fit img{height:100%;width:auto;max-width:100%;object-fit:contain;margin:auto}
+.mvimg.w1 img{width:100%;height:auto}
+.mvimg.w2 img{width:220%;height:auto}
+.mvhint{position:absolute;left:.6rem;bottom:.5rem;background:rgba(0,0,0,.6);color:#fff;border-radius:1rem;padding:.25rem .7rem;font-size:.8rem;pointer-events:none}
+.mvempty{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#9fb0d4;gap:.4rem;padding:1rem}
+.mvempty big{font-size:3rem}
+.mvp{padding:.7rem var(--sr) calc(env(safe-area-inset-bottom) + .7rem) var(--sl);display:flex;flex-direction:column;gap:.5rem;min-height:0;overflow:auto}
+.mvp h3{margin:0;font-size:1.2rem;flex:1}
+.mvhd{display:flex;align-items:center;gap:.5rem}
+.mvrow{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.mvb{border:0;border-radius:.8rem;height:2.8rem;font-weight:800;font-size:.95rem;background:rgba(255,255,255,.14);color:#fff}
+.mvb.pri{background:#4cc26b;color:#0e2a17}
+.mvb[disabled]{opacity:.5}
+.mvp textarea{width:100%;flex:1;min-height:5rem;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;border-radius:.8rem;padding:.6rem;font:inherit;font-size:.95rem;resize:none;line-height:1.35}
+.mvst{font-size:.8rem;color:#9fb0d4;min-height:1rem}
+@media (orientation:landscape){
+  .mv{grid-template-columns:1.25fr 1fr;grid-template-rows:1fr}
+  .mvp{padding-left:.8rem}
+}
+.toast{position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);background:#222;color:#fff;padding:.6rem 1.1rem;border-radius:1.2rem;z-index:30;display:none;max-width:90vw;text-align:center}
+</style>
+</head>
+<!-- Service Control — made by Nickolas -->
+<body>
+<header>
+  <h1>🍽️ SERVICE CONTROL</h1>
+  <div class="stats" id="stats"></div>
+  <button class="hbtn" id="menuOpen">📖 Menu</button>
+  <button class="hbtn pri" id="addTable">+ Table</button>
+  <button class="hbtn sq" id="menuBtn" aria-label="More">⋮</button>
+</header>
+<main id="main"></main>
+<div class="credit-foot">Made by Nickolas</div>
+
+<div class="menu" id="menu">
+  <button id="mZoom">🔍 Size: M — tap to change</button>
+  <button id="mExport">⬇️ Export backup (JSON)</button>
+  <button id="mImport">⬆️ Import backup</button>
+  <button id="mReset">🧹 Reset statuses</button>
+  <button id="mClear">🗑️ Clear all tables</button>
+  <div class="credit">Made by Nickolas</div>
+</div>
+<input type="file" id="file" accept=".json,application/json" hidden>
+<input type="file" id="phCam" accept="image/*" capture="environment" hidden>
+<input type="file" id="phGal" accept="image/*" hidden>
+
+<div class="back" id="back"></div>
+<div class="sheet" id="sheet">
+  <div class="shL">
+    <div class="sh-top"><div><small id="shCtx"></small><h2 id="shTitle"></h2></div><button class="sh-x" id="shX">✕</button></div>
+    <input id="dish" placeholder="Dish" autocomplete="off">
+    <div class="chips" id="chips"></div>
+    <label for="note">OBSERVATION</label>
+    <textarea id="note" placeholder="e.g. soup must be hot"></textarea>
+  </div>
+  <div class="shR">
+    <div class="sts">
+      <button class="st" data-s="0">⬜ Not ordered</button>
+      <button class="st" data-s="1">🟡 Waiting</button>
+      <button class="st" data-s="2">🔥 Preparing</button>
+      <button class="st" data-s="3">✅ Served</button>
+    </div>
+    <div class="nav"><button id="prev">‹ Prev</button><button class="done" id="done">Done</button><button id="next">Next ›</button></div>
+  </div>
+</div>
+
+<div class="mv" id="mv">
+  <div class="mvimg fit" id="mvImgBox">
+    <img id="mvImg" alt="Menu photo" style="display:none">
+    <div class="mvempty" id="mvEmpty"><big>📖</big><b>No menu yet</b><span>Take a photo of tonight’s menu</span></div>
+    <div class="mvhint" id="mvHint" style="display:none">tap photo to zoom</div>
+  </div>
+  <div class="mvp">
+    <div class="mvhd"><h3>Tonight’s menu</h3><button class="hbtn sq" id="mvX">✕</button></div>
+    <div class="mvrow">
+      <button class="mvb pri" id="mvCam">📷 Take photo</button>
+      <button class="mvb" id="mvGal">🖼️ Choose photo</button>
+    </div>
+    <div class="mvrow">
+      <button class="mvb" id="mvRead">🔍 Read dishes</button>
+      <button class="mvb" id="mvDel">🗑️ Remove photo</button>
+    </div>
+    <div class="mvst" id="mvSt"></div>
+    <textarea id="mvItems" placeholder="Dishes, one per line. They appear as quick suggestions when you add an order."></textarea>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const COURSES=["Appetizer","Soup","Main","Dessert"];
+const KEY="waiter-app-v1",ZKEY="sc-zoom";
+const uid=()=>Math.random().toString(36).slice(2,10);
+const $=id=>document.getElementById(id);
+const emptyCourse=()=>({dish:"",s:0,note:""});
+const newGuest=n=>({id:uid(),name:"Guest "+n,courses:COURSES.map(emptyCourse)});
+const nz=s=>s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+let state=load();
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&d.tables)return norm(d)}catch(e){}return norm({tables:[]})}
+function norm(d){d.tables.forEach(t=>{t.id=t.id||uid();t.collapsed=!!t.collapsed;t.guests=(t.guests||[]).map(g=>({id:g.id||uid(),name:g.name||"Guest",courses:COURSES.map((_,i)=>{const c=(g.courses||[])[i]||{};return{dish:c.dish||"",s:c.s|0,note:c.note||""}})}))});
+  d.menu={items:Array.isArray(d.menu&&d.menu.items)?d.menu.items.map(String):[]};return d}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){toast("Could not save!")}}
+function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display="none",2600)}
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const IC=["","🟡","🔥","✅"];
+
+/* text size */
+const ZN=["S","M","L","XL"];let zoom=+localStorage.getItem(ZKEY);if(!(zoom>=0&&zoom<=3)||localStorage.getItem(ZKEY)===null)zoom=1;
+function applyZoom(){document.documentElement.className="z"+zoom;$("mZoom").textContent="🔍 Size: "+ZN[zoom]+" — tap to change"}
+
+function render(){
+  let tb=state.tables.length,gs=0,served=0,total=0,wait=0;
+  state.tables.forEach(t=>{gs+=t.guests.length;t.guests.forEach(g=>g.courses.forEach(c=>{if(c.dish&&c.s!==0){total++;if(c.s===3)served++;if(c.s===1)wait++}}))});
+  $("stats").innerHTML=`<span>🪑 ${tb}</span><span>👥 ${gs}</span><span>✅ ${served}/${total}</span><span>🟡 ${wait}</span>`;
+  const m=$("main");
+  if(!tb){m.innerHTML='<div class="empty">No tables yet.<br>Tap “+ Table” to start.</div>';return}
+  m.innerHTML=state.tables.map(t=>{
+    let tt=0,ts=0;t.guests.forEach(g=>g.courses.forEach(c=>{if(c.dish&&c.s){tt++;if(c.s===3)ts++}}));
+    let body="";
+    if(!t.collapsed){
+      body=`<div class="grid"><div class="th">GUEST</div>${COURSES.map(c=>`<div class="th">${c.toUpperCase()}</div>`).join("")}<div></div>`+
+      t.guests.map(g=>`<div class="gname">${esc(g.name)}</div>`+g.courses.map((c,i)=>{const s=c.dish?c.s:0;return`<button class="cell s${s}" data-a="cell" data-t="${t.id}" data-g="${g.id}" data-c="${i}">${c.dish?`${s?`<span class="ic">${IC[s]}</span>`:""}<span class="t">${esc(c.dish)}</span>`:"+"}${c.dish&&c.note?'<span class="bang">!</span>':""}</button>`}).join("")+`<button class="xg" data-a="rmg" data-t="${t.id}" data-g="${g.id}">✕</button>`).join("")+
+      `</div><button class="addg" data-a="addg" data-t="${t.id}">+ Add guest</button>`;
+    }
+    return`<section class="table"><div class="thead"><div class="name" data-a="fold" data-t="${t.id}"><span>${t.collapsed?"▶":"▼"}</span><span>🪑</span><b>${esc(t.name)}</b><small class="${tt&&ts===tt?"ok":""}">${ts}/${tt} ✓</small></div>
+      <div class="cnt"><button data-a="gm" data-t="${t.id}">−</button><div>👥 ${t.guests.length}</div><button data-a="gp" data-t="${t.id}">+</button></div>
+      <button class="sq" data-a="ren" data-t="${t.id}">✏️</button><button class="sq del" data-a="del" data-t="${t.id}">🗑️</button></div>${body}</section>`}).join("");
+}
+const T=id=>state.tables.find(t=>t.id===id);
+$("main").addEventListener("click",e=>{
+  const b=e.target.closest("[data-a]");if(!b)return;
+  const t=T(b.dataset.t),a=b.dataset.a;
+  if(a==="cell")return openSheet(b.dataset.t,b.dataset.g,+b.dataset.c);
+  if(a==="fold")t.collapsed=!t.collapsed;
+  else if(a==="addg"||a==="gp")t.guests.push(newGuest(t.guests.length+1));
+  else if(a==="gm"||a==="rmg"){
+    const idx=a==="rmg"?t.guests.findIndex(g=>g.id===b.dataset.g):t.guests.length-1;
+    const g=t.guests[idx];if(!g)return;
+    if(g.courses.some(c=>c.dish||c.note)&&!confirm("Remove "+g.name+"? It has orders."))return;
+    t.guests.splice(idx,1);
+  }
+  else if(a==="ren"){const n=prompt("Table name",t.name);if(n&&n.trim())t.name=n.trim()}
+  else if(a==="del"){if(!confirm("Delete "+t.name+"?"))return;state.tables=state.tables.filter(x=>x!==t)}
+  save();render();
+});
+$("addTable").onclick=()=>{const n=prompt("Table number / name");if(!n||!n.trim())return;
+  const s=prompt("How many guests?","2");const k=Math.max(1,Math.min(30,parseInt(s)||1));
+  state.tables.push({id:uid(),name:"Table "+n.trim(),collapsed:false,guests:Array.from({length:k},(_,i)=>newGuest(i+1))});save();render()};
+
+/* order sheet */
+let cur=null;
+function cells(){const l=[];state.tables.forEach(t=>{if(!t.collapsed)t.guests.forEach(g=>COURSES.forEach((_,c)=>l.push({t:t.id,g:g.id,c})))});return l}
+function getCur(){const t=T(cur.t);const g=t&&t.guests.find(x=>x.id===cur.g);return g&&{t,g,c:g.courses[cur.c]}}
+function openSheet(t,g,c){cur={t,g,c};fill();$("back").classList.add("on");$("sheet").classList.add("on")}
+function fill(){const x=getCur();if(!x)return closeSheet();
+  $("shCtx").textContent=`${x.t.name} · ${x.g.name}`;$("shTitle").textContent=COURSES[cur.c];
+  $("dish").value=x.c.dish;$("note").value=x.c.note;setSel(x.c.s);renderChips()}
+function setSel(s){document.querySelectorAll(".st").forEach(b=>b.classList.toggle("sel",+b.dataset.s===s))}
+function commit(){if(!cur)return;const x=getCur();if(!x)return;
+  x.c.dish=$("dish").value.trim();x.c.note=$("note").value.trim();
+  const sel=document.querySelector(".st.sel");x.c.s=sel?+sel.dataset.s:0;
+  save();render()}
+function renderChips(){
+  const q=nz($("dish").value.trim()),items=state.menu.items;
+  const l=q?items.filter(i=>nz(i).includes(q)&&nz(i)!==q):items;
+  $("chips").innerHTML=`<button class="chip mv-open" data-open="1">📖 Menu</button>`+l.slice(0,40).map(i=>`<button class="chip" data-v="${esc(i)}">${esc(i)}</button>`).join("")}
+function dishInput(){const x=getCur();if(x&&$("dish").value.trim()&&!x.c.dish&&x.c.s===0)setSel(1);commit();renderChips()}
+$("chips").addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;
+  if(b.dataset.open)return openMenu();
+  $("dish").value=b.dataset.v;dishInput()});
+document.querySelectorAll(".st").forEach(b=>b.onclick=()=>{setSel(+b.dataset.s);commit()});
+$("dish").addEventListener("input",dishInput);
+$("note").addEventListener("input",commit);
+function closeSheet(){commit();cur=null;$("back").classList.remove("on");$("sheet").classList.remove("on");document.activeElement.blur()}
+$("done").onclick=closeSheet;$("shX").onclick=closeSheet;$("back").onclick=closeSheet;
+function step(d){commit();const l=cells();const i=l.findIndex(z=>z.t===cur.t&&z.g===cur.g&&z.c===cur.c);const n=l[i+d];if(n){cur=n;fill()}}
+$("prev").onclick=()=>step(-1);$("next").onclick=()=>step(1);
+
+/* dropdown */
+$("menuBtn").onclick=e=>{e.stopPropagation();$("menu").classList.toggle("on")};
+document.addEventListener("click",()=>$("menu").classList.remove("on"));
+$("mZoom").onclick=e=>{e.stopPropagation();zoom=(zoom+1)%4;localStorage.setItem(ZKEY,zoom);applyZoom()};
+$("mExport").onclick=()=>{const d=new Date(),p=n=>String(n).padStart(2,"0");
+  const name=`service-${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}-${p(d.getHours())}-${p(d.getMinutes())}.json`;
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"}));a.download=name;a.click()};
+$("mImport").onclick=()=>$("file").click();
+$("file").onchange=async e=>{const f=e.target.files[0];if(!f)return;
+  try{const d=JSON.parse(await f.text());if(!d.tables)throw 0;
+    if(!confirm("Replace current data with this backup?"))return;state=norm(d);save();render();toast("Imported")}catch(_){toast("Invalid file")}e.target.value=""};
+$("mReset").onclick=()=>{if(!confirm("Reset all statuses and clear dishes/notes?"))return;state.tables.forEach(t=>t.guests.forEach(g=>g.courses=COURSES.map(emptyCourse)));save();render()};
+$("mClear").onclick=()=>{if(!confirm("Delete ALL tables?"))return;state.tables=[];save();render()};
+
+/* ---------- smart menu ---------- */
+const idb=()=>new Promise((res,rej)=>{const r=indexedDB.open("service-control",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
+async function idbOp(mode,fn){const d=await idb();return new Promise((res,rej)=>{const q=fn(d.transaction("kv",mode).objectStore("kv"));q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+const idbGet=k=>idbOp("readonly",s=>s.get(k)),idbPut=(k,v)=>idbOp("readwrite",s=>s.put(v,k)),idbDel=k=>idbOp("readwrite",s=>s.delete(k));
+let photoURL=null,photoBlob=null,reading=false;
+async function showPhoto(){
+  try{photoBlob=await idbGet("photo")||null}catch(_){photoBlob=null}
+  if(photoURL){URL.revokeObjectURL(photoURL);photoURL=null}
+  if(photoBlob)photoURL=URL.createObjectURL(photoBlob);
+  $("mvImg").src=photoURL||"";$("mvImg").style.display=photoBlob?"block":"none";
+  $("mvEmpty").style.display=photoBlob?"none":"flex";$("mvHint").style.display=photoBlob?"block":"none";
+  $("mvDel").disabled=!photoBlob;$("mvRead").disabled=!photoBlob||reading;
+}
+function syncItems(){$("mvItems").value=state.menu.items.join("\n")}
+function openMenu(){$("mv").classList.add("on");syncItems();showPhoto()}
+function closeMenu(){$("mv").classList.remove("on");if(cur)renderChips()}
+$("menuOpen").onclick=openMenu;$("mvX").onclick=closeMenu;
+$("mvCam").onclick=()=>$("phCam").click();$("mvGal").onclick=()=>$("phGal").click();
+$("mvImgBox").onclick=()=>{if(!photoBlob)return;const b=$("mvImgBox"),c=b.classList.contains("fit")?"w1":b.classList.contains("w1")?"w2":"fit";b.className="mvimg "+c;b.scrollTo(0,0)};
+$("mvItems").addEventListener("input",()=>{state.menu.items=$("mvItems").value.split("\n").map(s=>s.trim()).filter(Boolean);save()});
+$("mvDel").onclick=async()=>{if(!confirm("Remove the menu photo and dish list?"))return;await idbDel("photo");state.menu.items=[];save();syncItems();showPhoto();$("mvSt").textContent=""};
+async function shrink(f){let bmp;
+  try{bmp=await createImageBitmap(f,{imageOrientation:"from-image"})}
+  catch(_){bmp=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=URL.createObjectURL(f)})}
+  const w=bmp.width||bmp.naturalWidth,h=bmp.height||bmp.naturalHeight,k=Math.min(1,2200/Math.max(w,h));
+  const c=document.createElement("canvas");c.width=Math.round(w*k);c.height=Math.round(h*k);
+  c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+  return new Promise(r=>c.toBlob(r,"image/jpeg",.88))}
+async function onPhoto(e){const f=e.target.files[0];e.target.value="";if(!f)return;
+  try{const b=await shrink(f);await idbPut("photo",b);state.menu.items=[];save();syncItems();$("mvImgBox").className="mvimg fit";await showPhoto();
+    readMenu()}
+  catch(_){toast("Could not load photo")}}
+$("phCam").onchange=onPhoto;$("phGal").onchange=onPhoto;
+function loadTess(){return window.Tesseract?Promise.resolve():new Promise((res,rej)=>{const s=document.createElement("script");s.src="vendor/tesseract/tesseract.min.js";s.onload=res;s.onerror=()=>rej(new Error("load"));document.head.appendChild(s)})}
+function parseMenu(t){const seen=new Set(),out=[];
+  t.split(/\n+/).forEach(l=>{
+    l=l.replace(/\s*(?:[€$]|R\$)?\s*\d+(?:[.,]\d{1,2})?\s*(?:€|eur|r\$)?\s*$/i,"").replace(/[.·…_\-–—|*•]+\s*$/,"").replace(/^[\s.·…_\-–—|*•]+/,"").trim();
+    if(l.length<3||l.length>60)return;
+    if((l.match(/[A-Za-zÀ-ÿ]/g)||[]).length<3)return;
+    const k=l.toLowerCase();if(seen.has(k))return;seen.add(k);out.push(l)});
+  return out.slice(0,120)}
+async function readMenu(){
+  if(reading||!photoBlob)return;
+  reading=true;$("mvRead").disabled=true;$("mvSt").textContent="Loading reader…";
+  try{await loadTess();
+    const w=await Tesseract.createWorker("por+eng",1,{workerPath:"vendor/tesseract/worker.min.js",corePath:"vendor/tesseract/core/",langPath:"vendor/tesseract/lang/",gzip:true,workerBlobURL:false,logger:m=>{if(m.status==="recognizing text")$("mvSt").textContent="Reading… "+Math.round(m.progress*100)+"%"}});
+    const r=await w.recognize(photoBlob);await w.terminate();
+    const items=parseMenu(r.data.text);
+    if(items.length){state.menu.items=items;save();syncItems();$("mvSt").textContent=items.length+" dishes found — edit the list if needed."}
+    else $("mvSt").textContent="Couldn’t read the text. Try a straighter, brighter photo, or type the dishes."}
+  catch(_){$("mvSt").textContent="Reader failed. Try again."}
+  reading=false;$("mvRead").disabled=!photoBlob}
+$("mvRead").onclick=readMenu;
+
+/* keep screen on while serving */
+let wl=null;async function keepAwake(){try{if("wakeLock"in navigator&&document.visibilityState==="visible")wl=await navigator.wakeLock.request("screen")}catch(_){}}
+document.addEventListener("visibilitychange",keepAwake);
+
+applyZoom();render();keepAwake();
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script>
+</body>
+</html>
